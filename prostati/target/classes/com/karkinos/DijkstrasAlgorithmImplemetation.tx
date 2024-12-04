@@ -1,0 +1,36 @@
+package com.karkinos;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
+public class DijkstrasAlgorithmImplemetation {
+
+    public static void mapTest() {
+        try {
+            // Path to the GeoJSON file
+            File jsonFile = new File("prostati/src/main/resources/athens_transport_data.geojson");
+
+            // Parse nodes and create a map of Node IDs to Node objects
+            Map<Long, Node> nodes = GeoJsonParser.parseNodesFromGeoJson(jsonFile);
+
+            // Parse edges (graph) using the nodes
+            Map<Long, List<Edge>> graph = GeoJsonParser.parseGraphFromGeoJson(jsonFile, nodes);
+
+            // Find the closest nodes to the target coordinates using GeoUtils
+            Node startNode = GeoUtils.findClosestNode(nodes, 37.951078, 23.695118);
+            Node endNode = GeoUtils.findClosestNode(nodes, 37.994078, 23.731945);
+
+            if (startNode == null || endNode == null) {
+                System.out.println("Couldn't find nodes near the given coordinates.");
+                return;
+            }
+
+            System.out.println("Start node: " + startNode.id + " (" + startNode.lat + ", " + startNode.lon + ")");
+            System.out.println("End node: " + endNode.id + " (" + endNode.lat + ", " + endNode.lon + ")");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
