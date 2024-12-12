@@ -22,14 +22,12 @@ public class MapCreator {
         
         for (JsonNode element : elements) {
             if (element.has("properties") && element.get("properties").has("ref")) {
-                long MainId = -1;
                 String id = "-1";
                 String ref = element.get("properties").get("ref").toString();
                 double lat = -1;
                 double lon = -1;
                 ref = ref.substring(1, ref.length() - 1);
                 if (ref.matches("\\d{6}")) {
-                    MainId = element.get("id").asLong();
                     id = ref;
                     //System.out.println(cords.getStopXY(ref)[0]);
                     //lat = Double.parseDouble(cords.getStopXY(ref)[0]);
