@@ -12,31 +12,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MapCreator {
     
-    public static Map<Long, Node> parseNodesFromGeoJson() throws IOException {
+    public static Map<String, Node> parseNodesFromGeoJson() throws IOException {
 
-        File jsonFile = new File("prostati/src/main/resources/athens_transport_data.geojson");
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(jsonFile);
-
-        Map<Long, Node> nodes = new HashMap<>();
-
-        // Parse nodes (Point type) and ways (LineString type)
-        for (JsonNode element : rootNode.get("features")) {
-            if (element.has("geometry")) {
-                JsonNode geometry = element.get("geometry");
-
-                if (geometry.has("type") && geometry.get("type").asText().equals("Point")) {
-                    // Node type (bus stop, subway, etc.)
-                    JsonNode coordinates = geometry.get("coordinates");
-                    if (coordinates != null && coordinates.size() >= 2) {
-                        long id = -1;
-                        if (element.has("properties") && element.get("properties").has("id")) {
-                            id = element.get("properties").get("id").asLong();
-                        }
-                        double lon = coordinates.get(0).asDouble();
-                        double lat = coordinates.get(1).asDouble();
-                        nodes.put(id, new Node(id, lat, lon));
-                    }
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(new File("prostati/src/main/resources/athens_transport_data.geojson"));
+        var cords = new CodeToName();
+        JsonNode elements = root.get("features");
+        Map<String, Node> nodes = new HashMap<>();
+        
+        for (JsonNode element : elements) {
+            if (element.has("properties") && element.get("properties").has("ref")) {
+                long MainId = -1;
+                String id = "-1";
+                String ref = element.get("properties").get("ref").toString();
+                double lat = -1;
+                double lon = -1;
+                ref = ref.substring(1, ref.length() - 1);
+                if (ref.matches("\\d{6}")) {
+                    MainId = element.get("id").asLong();
+                    id = ref;
+                    //System.out.println(cords.getStopXY(ref)[0]);
+                    //lat = Double.parseDouble(cords.getStopXY(ref)[0]);
+                    //lon = Double.parseDouble(cords.getStopXY(ref)[1]);
+                    lat = element.get("geometry").get("coordinates").get(1).asDouble();
+                    lon = element.get("geometry").get("coordinates").get(0).asDouble();
+                    //System.out.println(lat + " " + lon);
+                    nodes.put(id, new Node(id, lat, lon));
                 }
             }
         }
@@ -59,15 +60,17 @@ public class MapCreator {
                     // Way type (path between nodes)
                     JsonNode coordinates = geometry.get("coordinates");
                     long wayId = -1;
+                    String nodeId = "-1";
                     if (element.has("properties") && element.get("properties").has("id")) {
                         wayId = element.get("properties").get("id").asLong();
+                        nodeId = element.get("properties").get("id").toString();
                     }
 
                     List<Node> wayNodes = new ArrayList<>();
                     for (JsonNode coord : coordinates) {
                         double lon = coord.get(0).asDouble();
                         double lat = coord.get(1).asDouble();
-                        Node currentNode = new Node(wayId, lat, lon);
+                        Node currentNode = new Node(nodeId, lat, lon);
                         wayNodes.add(currentNode);
                         nodes.putIfAbsent(wayId, currentNode);
                     }
@@ -78,12 +81,13 @@ public class MapCreator {
                         Node to = wayNodes.get(i + 1);
                         double distance = calc.calculateDistance(from, to);
                         Edge edge = new Edge(from, to, distance);
-                        graph.putIfAbsent(from.id, new ArrayList<>());
+                        graph.putIfAbsent(Long.parseLong(from.id)
+                        , new ArrayList<>());
                         graph.get(from.id).add(edge);
 
                         // If the graph is undirected, add the reverse edge as well
                         Edge reverseEdge = new Edge(to, from, distance);
-                        graph.putIfAbsent(to.id, new ArrayList<>());
+                        graph.putIfAbsent(Long.parseLong(to.id), new ArrayList<>());
                         graph.get(to.id).add(reverseEdge);
                     }
                 }

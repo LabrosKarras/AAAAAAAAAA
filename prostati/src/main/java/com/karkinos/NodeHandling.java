@@ -10,7 +10,7 @@ public class NodeHandling {
 
         for (Node node : nodes.values()) {
             // Calculate the distance between the node and the target coordinates
-            double distance = calculateDistance(node, new Node(-1, targetLat, targetLon));
+            double distance = calculateDistance(node, new Node("-1", targetLat, targetLon));
             if (distance < minDistance) {
                 minDistance = distance;
                 closestNode = node;
