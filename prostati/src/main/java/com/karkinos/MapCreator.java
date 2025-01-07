@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,56 +42,85 @@ public class MapCreator {
         }
         return nodes;
     }
+/* 
+    public static List<Edge> parseEdgesFromGeoJson() throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.readTree(new File("prostati/src/main/resources/athens_transport_data.geojson"));
+        JsonNode elements = root.get("features");
+        List<Edge> edges = new ArrayList<>();
+        int i = 1;
 
-    // Method to parse the GeoJSON file and build the graph (edges between nodes)
-    public static Map<Long, List<Edge>> parseGraphFromGeoJson(File jsonFile, Map<Long, Node> nodes) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(jsonFile);
-        var calc = new NodeHandling();
-        Map<Long, List<Edge>> graph = new HashMap<>();
+        for (JsonNode element : elements) {
+            if ("LineString".equals(element.get("geometry").get("type").asText())) {
+                JsonNode coordinates = element.get("geometry").get("coordinates");
+                Node prevNode = null;
 
-        // Parse ways (LineString type) and create edges between nodes
-        for (JsonNode element : rootNode.get("features")) {
-            if (element.has("geometry")) {
-                JsonNode geometry = element.get("geometry");
-
-                if (geometry.has("type") && geometry.get("type").asText().equals("LineString")) {
-                    // Way type (path between nodes)
-                    JsonNode coordinates = geometry.get("coordinates");
-                    long wayId = -1;
-                    String nodeId = "-1";
-                    if (element.has("properties") && element.get("properties").has("id")) {
-                        wayId = element.get("properties").get("id").asLong();
-                        nodeId = element.get("properties").get("id").toString();
+                for (JsonNode coordinate : coordinates) {
+                    double lon = coordinate.get(0).asDouble();
+                    double lat = coordinate.get(1).asDouble();
+                    String id = "L" + i;
+                    // Find the nearest node for the coordinate
+                    Node currentNode = new Node(id , lat, lon);
+                    if (prevNode != null && currentNode != null && !prevNode.id.equals(currentNode.id)) {
+                        double distance = NodeHandling.calculateDistance(prevNode, currentNode);
+                        boolean doesItExist = false;
+                        for (Edge edge : edges) {
+                            if (currentNode.lat == edge.from.lat && currentNode.lon == edge.from.lon) {
+                                currentNode.id = edge.from.id;
+                                doesItExist = true;
+                                break;
+                            } else if (currentNode.lat == edge.to.lat && currentNode.lon == edge.to.lon) {
+                                currentNode.id = edge.to.id;
+                                doesItExist = true;
+                                break;
+                            }
+                        }
+                        if (doesItExist == false) {
+                            i++;
+                        }
+                        edges.add(new Edge(prevNode, currentNode, distance));
+                    } else {
+                        i++;
                     }
-
-                    List<Node> wayNodes = new ArrayList<>();
-                    for (JsonNode coord : coordinates) {
-                        double lon = coord.get(0).asDouble();
-                        double lat = coord.get(1).asDouble();
-                        Node currentNode = new Node(nodeId, lat, lon);
-                        wayNodes.add(currentNode);
-                        nodes.putIfAbsent(wayId, currentNode);
-                    }
-
-                    // Create edges between consecutive nodes in the way
-                    for (int i = 0; i < wayNodes.size() - 1; i++) {
-                        Node from = wayNodes.get(i);
-                        Node to = wayNodes.get(i + 1);
-                        double distance = calc.calculateDistance(from, to);
-                        Edge edge = new Edge(from, to, distance);
-                        graph.putIfAbsent(Long.parseLong(from.id)
-                        , new ArrayList<>());
-                        graph.get(from.id).add(edge);
-
-                        // If the graph is undirected, add the reverse edge as well
-                        Edge reverseEdge = new Edge(to, from, distance);
-                        graph.putIfAbsent(Long.parseLong(to.id), new ArrayList<>());
-                        graph.get(to.id).add(reverseEdge);
-                    }
+                    prevNode = currentNode;
                 }
             }
         }
-        return graph;
+        return edges;
+    } */
+   
+    public static List<Edge> parseEdgesFromGeoJson() throws IOException {
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode root = mapper.readTree(new File("prostati/src/main/resources/athens_transport_data.geojson"));
+    JsonNode elements = root.get("features");
+    List<Edge> edges = new ArrayList<>();
+    Map<String, Node> nodeMap = new HashMap<>();
+    AtomicInteger idCounter = new AtomicInteger(1); // Use AtomicInteger for mutable counter
+
+    for (JsonNode element : elements) {
+        if ("LineString".equals(element.get("geometry").get("type").asText())) {
+            JsonNode coordinates = element.get("geometry").get("coordinates");
+            Node prevNode = null;
+
+            for (JsonNode coordinate : coordinates) {
+                double lon = coordinate.get(0).asDouble();
+                double lat = coordinate.get(1).asDouble();
+
+                // Generate a unique key for the coordinate
+                String key = String.format("%.6f,%.6f", lat, lon); // Round coordinates for precision
+
+                // Retrieve or create a node with a unique ID
+                Node currentNode = nodeMap.computeIfAbsent(key, k -> new Node("L" + idCounter.getAndIncrement(), lat, lon));
+
+                if (prevNode != null && !prevNode.id.equals(currentNode.id)) {
+                    double distance = NodeHandling.calculateDistance(prevNode, currentNode);
+                    edges.add(new Edge(prevNode, currentNode, distance));
+                }
+
+                prevNode = currentNode;
+            }
+        }
     }
+    return edges;
+} 
 }

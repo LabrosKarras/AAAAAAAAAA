@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Maps with GeoJSON File</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD57XGKSL3GwOvmWwfYkdpy2Wt4x6cI3HU"></script>
+    <script>
+        function initMap() {
+            const map = new google.maps.Map(document.getElementById("map"), {
+                center: { lat: 37.983810, lng: 23.727539 }, // Athens coordinates
+                zoom: 14
+            });
+
+            // Load GeoJSON from an external file
+            fetch('athens_transport_data.geojson')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(geoJsonData => {
+                    // Add GeoJSON data to the map
+                    map.data.addGeoJson(geoJsonData);
+
+                    // Add a click listener to show feature properties
+                    map.data.addListener("click", (event) => {
+                        const feature = event.feature;
+                        const properties = [];
+                        feature.forEachProperty((value, key) => {
+                            properties.push(`${key}: ${value}`);
+                        });
+                        alert(`Feature Properties:\n${properties.join('\n')}`);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading GeoJSON file:', error);
+                });
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <div id="map" style="height: 500px; width: 100%;"></div>
+</body>
+</html>
