@@ -1,5 +1,6 @@
 package com.karkinos;
 
+import java.util.List;
 import java.util.Map;
 
 public class NodeHandling {
@@ -19,6 +20,32 @@ public class NodeHandling {
 
         return closestNode;
     }
+
+    public static Node findClosestNode(List<Edge> edges, double targetLat, double targetLon) {
+    Node closestNode = null;
+    double minDistance = Double.MAX_VALUE;
+
+    // Iterate over all edges and compare both "from" and "to" nodes
+    for (Edge edge : edges) {
+        // Check the "from" node
+        Node fromNode = edge.getFrom();
+        double distanceFrom = calculateDistance(fromNode, targetLat, targetLon);
+        if (distanceFrom < minDistance) {
+            minDistance = distanceFrom;
+            closestNode = fromNode;
+        }
+
+        // Check the "to" node
+        Node toNode = edge.getTo();
+        double distanceTo = calculateDistance(toNode, targetLat, targetLon);
+        if (distanceTo < minDistance) {
+            minDistance = distanceTo;
+            closestNode = toNode;
+        }
+    }
+
+    return closestNode;
+}
 
     public static double calculateDistance(Node from, Node to) {
         return Math.sqrt(Math.pow(from.getLat() - to.getLat(), 2) + Math.pow(from.getLon() - to.getLon(), 2));

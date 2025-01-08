@@ -1,5 +1,6 @@
 package com.karkinos;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -26,14 +27,20 @@ public class Main {
             
             System.out.println("ID: " + key + ", Node: " + node);
         } */ 
-        List<Edge> edges = MapCreator.parseEdgesFromGeoJson(); 
+        List<Edge> edges = MapCreator.parseEdgesFromGeoJson(); /* 
         for (Edge edge : edges) {  
             System.out.println(edge);
-        } 
+        } */
         System.out.println(edges.size()); 
         System.out.println(nodes.size());
-        System.out.println(NodeHandling.findClosestNode(nodes, 38.094666, 23.894495));
+        System.out.println(NodeHandling.findClosestNode(edges, 38.064525, 23.826156));
         String outputFilePath = System.getProperty("user.home") + "/exported_data.geojson";
-        GeoJsonExporter.exportToGeoJson(nodes, edges, outputFilePath);
+        var t1 = new Node("t1", 37.9482528, 23.6348933);
+        var t2 = new Node("t2", 37.946127, 23.644743);
+        try (FileWriter writer = new FileWriter(outputFilePath)) {
+            writer.write(edges.toString());
+        }
+        System.out.println(ShortestPath.findShortestPath(t1, t2, edges));
+        //GeoJsonExporter.exportShortestPathToGeoJson(ShortestPath.findShortestPath(t1, t2, edges), outputFilePath);
     }
 }
