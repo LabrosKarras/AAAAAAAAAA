@@ -42,5 +42,7 @@ public class Main {
         }
         System.out.println(ShortestPath.findShortestPath(t1, t2, edges));
         //GeoJsonExporter.exportShortestPathToGeoJson(ShortestPath.findShortestPath(t1, t2, edges), outputFilePath);
+        outputFilePath = System.getProperty("user.home") + "/test_data.geojson";
+        GeoJsonExporter.exportToGeoJson(nodes, edges, outputFilePath);
     }
 }
