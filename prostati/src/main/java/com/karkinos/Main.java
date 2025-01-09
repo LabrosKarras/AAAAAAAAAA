@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         var x = new CodeToName();
         var y = new JSONtoString();
-        
+        /* 
         System.out.println(x.getStopName("450028"));
         System.out.println(x.getStopXY("110071")[0]);
         System.out.println(x.getStopXY("110071")[1]);
@@ -17,7 +17,7 @@ public class Main {
         System.out.println(x.getRouteName("1881"));
         for (String z : y.getStopInfo("240033")) {
             System.out.println(z);
-        }
+        }*/
         System.out.println("37.951596, 23.695745");
         //System.out.println(NodeHandling.findClosestNode(MapCreator.parseNodesFromGeoJson(), 37.951596, 23.695745).lon); 
         Map<String, Node> nodes = MapCreator.parseNodesFromGeoJson();/* 
@@ -34,15 +34,17 @@ public class Main {
         System.out.println(edges.size()); 
         System.out.println(nodes.size());
         System.out.println(NodeHandling.findClosestNode(edges, 38.064525, 23.826156));
-        String outputFilePath = System.getProperty("user.home") + "/exported_data.geojson";
-        var t1 = new Node("t1", 37.9482528, 23.6348933);
-        var t2 = new Node("t2", 37.946127, 23.644743);
+        String outputFilePath = System.getProperty("user.home") + "/all_edges.geojson";
+        var t1 = new Node("t1", 37.9675313, 23.7334766);
+        var t2 = new Node("t2", 37.976263, 23.733844);
         try (FileWriter writer = new FileWriter(outputFilePath)) {
             writer.write(edges.toString());
         }
         System.out.println(ShortestPath.findShortestPath(t1, t2, edges));
-        //GeoJsonExporter.exportShortestPathToGeoJson(ShortestPath.findShortestPath(t1, t2, edges), outputFilePath);
-        outputFilePath = System.getProperty("user.home") + "/test_data.geojson";
-        GeoJsonExporter.exportToGeoJson(nodes, edges, outputFilePath);
+        outputFilePath = System.getProperty("user.home") + "/exported_data.geojson";
+        GeoJsonExporter.exportShortestPathToGeoJson(ShortestPath.findShortestPath(t1, t2, edges), outputFilePath);
+        ShortestPath.checkGraphConnectivity(edges);
+        //outputFilePath = System.getProperty("user.home") + "/test_data.geojson";
+        //GeoJsonExporter.exportToGeoJson(nodes, edges, outputFilePath);
     }
 }
