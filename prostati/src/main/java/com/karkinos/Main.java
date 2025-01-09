@@ -35,12 +35,13 @@ public class Main {
         System.out.println(nodes.size());
         System.out.println(NodeHandling.findClosestNode(edges, 38.064525, 23.826156));
         String outputFilePath = System.getProperty("user.home") + "/all_edges.geojson";
-        var t1 = new Node("t1", 37.9675313, 23.7334766);
-        var t2 = new Node("t2", 37.976263, 23.733844);
+        var asoee = new Node("asoee", 37.994124, 23.731996);
+        var t1 = new Node("t1", 37.994050, 23.731982);
+        var t2 = new Node("t2", 38.057299, 23.708586);
         try (FileWriter writer = new FileWriter(outputFilePath)) {
             writer.write(edges.toString());
         }
-        System.out.println(ShortestPath.findShortestPath(t1, t2, edges));
+        System.out.println(ShortestPath.findShortestPath(asoee, t2, edges));
         outputFilePath = System.getProperty("user.home") + "/exported_data.geojson";
         GeoJsonExporter.exportShortestPathToGeoJson(ShortestPath.findShortestPath(t1, t2, edges), outputFilePath);
         ShortestPath.checkGraphConnectivity(edges);
