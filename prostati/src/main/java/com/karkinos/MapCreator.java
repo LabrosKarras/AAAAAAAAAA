@@ -42,41 +42,6 @@ public class MapCreator {
         }
         return nodes;
     }
-   /* 
-    public static List<Edge> parseEdgesFromGeoJson() throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(new File("prostati/src/main/resources/athens_transport_data.geojson"));
-        JsonNode elements = root.get("features");
-        List<Edge> edges = new ArrayList<>();
-        Map<String, Node> nodeMap = new HashMap<>();
-        AtomicInteger idCounter = new AtomicInteger(1); // Use AtomicInteger for mutable counter
-
-        for (JsonNode element : elements) {
-            if ("LineString".equals(element.get("geometry").get("type").asText())) {
-                JsonNode coordinates = element.get("geometry").get("coordinates");
-                Node prevNode = null;
-
-                for (JsonNode coordinate : coordinates) {
-                    double lon = coordinate.get(0).asDouble();
-                    double lat = coordinate.get(1).asDouble();
-
-                    // Generate a unique key for the coordinate
-                    String key = String.format("%.6f,%.6f", lat, lon); // Round coordinates for precision
-
-                    // Retrieve or create a node with a unique ID
-                    Node currentNode = nodeMap.computeIfAbsent(key, k -> new Node("L" + idCounter.getAndIncrement(), lat, lon));
-
-                    if (prevNode != null && !prevNode.id.equals(currentNode.id)) {
-                        double distance = NodeHandling.calculateDistance(prevNode, currentNode);
-                        edges.add(new Edge(prevNode, currentNode, distance));
-                    }
-
-                    prevNode = currentNode;
-                }
-            }
-        }
-        return edges;
-    } */
 
     public static List<Edge> parseEdgesFromGeoJson() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -106,13 +71,6 @@ public class MapCreator {
         return edges;
     }
     
-    /**
-     * Processes a set of coordinates to create edges.
-     * @param coordinates The coordinates array.
-     * @param nodeMap A map for tracking unique nodes.
-     * @param idCounter A counter for generating unique IDs.
-     * @return A list of edges created from the coordinates.
-     */
     private static List<Edge> processCoordinates(JsonNode coordinates, Map<String, Node> nodeMap, AtomicInteger idCounter) {
         List<Edge> edges = new ArrayList<>();
         Node prevNode = null;

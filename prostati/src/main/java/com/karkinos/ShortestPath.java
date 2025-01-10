@@ -131,47 +131,4 @@ public class ShortestPath {
             dfs(adjacencyList, edge.getTo(), visited);
         }
     }
-
-    // Helper class to store node-distance pairs for the priority queue
-    private static class NodeDistance {
-        Node node;
-        double distance;
-
-        NodeDistance(Node node, double distance) {
-            this.node = node;
-            this.distance = distance;
-        }
-    }
-
-    // Updated distance calculation using Haversine formula
-    public static class NodeHandling {
-        public static double calculateDistance(Node from, double lat, double lon) {
-            final int EARTH_RADIUS = 6371; // Radius in kilometers
-            double latDiff = Math.toRadians(lat - from.getLat());
-            double lonDiff = Math.toRadians(lon - from.getLon());
-            double a = Math.sin(latDiff / 2) * Math.sin(latDiff / 2) +
-                       Math.cos(Math.toRadians(from.getLat())) * Math.cos(Math.toRadians(lat)) *
-                       Math.sin(lonDiff / 2) * Math.sin(lonDiff / 2);
-            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return EARTH_RADIUS * c;
-        }
-
-        public static Node findClosestNode(List<Edge> edges, double targetLat, double targetLon) {
-            Node closestNode = null;
-            double minDistance = Double.MAX_VALUE;
-
-            for (Edge edge : edges) {
-                Node[] nodes = {edge.getFrom(), edge.getTo()};
-                for (Node node : nodes) {
-                    double distance = calculateDistance(node, targetLat, targetLon);
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        closestNode = node;
-                    }
-                }
-            }
-
-            return closestNode;
-        }
-    }
 }

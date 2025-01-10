@@ -11,7 +11,7 @@
             });
 
             // Load GeoJSON from an external file
-            fetch('athens_transport_data.geojson')
+            fetch('exported_data.geojson')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);

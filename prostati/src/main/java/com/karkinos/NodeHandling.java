@@ -22,36 +22,35 @@ public class NodeHandling {
     }
 
     public static Node findClosestNode(List<Edge> edges, double targetLat, double targetLon) {
-    Node closestNode = null;
-    double minDistance = Double.MAX_VALUE;
+        Node closestNode = null;
+        double minDistance = Double.MAX_VALUE;
 
-    // Iterate over all edges and compare both "from" and "to" nodes
-    for (Edge edge : edges) {
-        // Check the "from" node
-        Node fromNode = edge.getFrom();
-        double distanceFrom = calculateDistance(fromNode, targetLat, targetLon);
-        if (distanceFrom < minDistance) {
-            minDistance = distanceFrom;
-            closestNode = fromNode;
+        for (Edge edge : edges) {
+            Node[] nodes = {edge.getFrom(), edge.getTo()};
+            for (Node node : nodes) {
+                double distance = calculateDistance(node, targetLat, targetLon);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestNode = node;
+                }
+            }
         }
 
-        // Check the "to" node
-        Node toNode = edge.getTo();
-        double distanceTo = calculateDistance(toNode, targetLat, targetLon);
-        if (distanceTo < minDistance) {
-            minDistance = distanceTo;
-            closestNode = toNode;
-        }
+        return closestNode;
     }
-
-    return closestNode;
-}
 
     public static double calculateDistance(Node from, Node to) {
         return Math.sqrt(Math.pow(from.getLat() - to.getLat(), 2) + Math.pow(from.getLon() - to.getLon(), 2));
     }
 
-    private static double calculateDistance(Node node, double lat, double lon) {
-        return Math.sqrt(Math.pow(node.getLat() - lat, 2) + Math.pow(node.getLon() - lon, 2));
+    public static double calculateDistance(Node from, double lat, double lon) {
+        final int EARTH_RADIUS = 6371; // Radius in kilometers
+        double latDiff = Math.toRadians(lat - from.getLat());
+        double lonDiff = Math.toRadians(lon - from.getLon());
+        double a = Math.sin(latDiff / 2) * Math.sin(latDiff / 2) +
+                   Math.cos(Math.toRadians(from.getLat())) * Math.cos(Math.toRadians(lat)) *
+                   Math.sin(lonDiff / 2) * Math.sin(lonDiff / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return EARTH_RADIUS * c;
     }
 }

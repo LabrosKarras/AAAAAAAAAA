@@ -37,12 +37,13 @@ public class Main {
         String outputFilePath = System.getProperty("user.home") + "/all_edges.geojson";
         var asoee = new Node("asoee", 37.994124, 23.731996);
         var t1 = new Node("t1", 37.994050, 23.731982);
-        var t2 = new Node("t2", 38.057299, 23.708586);
+        var t2 = new Node("t2", 37.877708, 23.761687);
         try (FileWriter writer = new FileWriter(outputFilePath)) {
             writer.write(edges.toString());
         }
         System.out.println(ShortestPath.findShortestPath(asoee, t2, edges));
         outputFilePath = System.getProperty("user.home") + "/exported_data.geojson";
+        //outputFilePath = "D:\\.1\\cygwin64\\home\\Labros Karras\\AAAAAAAAAA\\prostati\\src\\main\\java\\com\\karkinos\\exported_data.geojson";
         GeoJsonExporter.exportShortestPathToGeoJson(ShortestPath.findShortestPath(t1, t2, edges), outputFilePath);
         ShortestPath.checkGraphConnectivity(edges);
         //outputFilePath = System.getProperty("user.home") + "/test_data.geojson";
